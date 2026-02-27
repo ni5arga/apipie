@@ -31,7 +31,7 @@ _NOISE_DOMAINS: frozenset[str] = frozenset({
     "cdn.jsdelivr.net", "unpkg.com", "cdnjs.cloudflare.com",
     "addons.mozilla.org", "chrome.google.com",
     "www.w3.org", "w3.org",
-    "get.adobe.com",
+    "get.adobe.com", "clarity.microsoft.com"
 })
 
 _NOISE_PATH_RE = re.compile(r"^https?://[^/]+/(?:static|assets|public|dist)/", re.I)
