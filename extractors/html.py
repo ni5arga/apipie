@@ -13,11 +13,12 @@ def extract_forms(soup: BeautifulSoup, page_url: str) -> list[tuple[str, str]]:
 
 
 def extract_data_urls(soup: BeautifulSoup, page_url: str) -> list[str]:
+    """Return URLs from data-url and data-endpoint attributes only.
+    data-href is intentionally excluded — it is a navigation attribute,
+    not an API endpoint signal."""
     results = []
     for tag in soup.find_all(True, attrs={"data-url": True}):
         results.append(urljoin(page_url, tag["data-url"]))
-    for tag in soup.find_all(True, attrs={"data-href": True}):
-        results.append(urljoin(page_url, tag["data-href"]))
     for tag in soup.find_all(True, attrs={"data-endpoint": True}):
         results.append(urljoin(page_url, tag["data-endpoint"]))
     return results

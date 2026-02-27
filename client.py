@@ -31,7 +31,7 @@ UA_PRESETS: dict[str, str] = {
     "bot": "Googlebot/2.1 (+http://www.google.com/bot.html)",
 }
 _TIMEOUT = 15
-_MAX_BODY = 5 * 1024 * 1024  # 5 MB cap per response
+_MAX_BODY = 5 * 1024 * 1024  
 
 
 class HttpClient:

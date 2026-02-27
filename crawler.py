@@ -131,6 +131,12 @@ class Crawler:
         for url, method in extract_forms(soup, page_url):
             self._register(Hit(url=url, method=method), page_url)
         for url in extract_data_urls(soup, page_url):
+            try:
+                p = urlparse(url)
+            except Exception:
+                continue
+            if same_origin(url, self.domain) and not _API_SIGNAL_RE.search(p.path):
+                continue
             self._register(Hit(url=url), page_url)
 
     def _ingest_js(self, js: str, source: str):
