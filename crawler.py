@@ -41,6 +41,15 @@ _SENTINELS = {
 
 _BASEURL_RE = re.compile(r"""baseURL\s*:\s*[`"'](https?://[^`"'\s]+)[`"']""", re.I)
 
+_VAR_BASEURL_RE = re.compile(
+    r"""(?:const|let|var)\s+(\w+)\s*=\s*[`"'](https?://[^`"'\s]+/)[`"']""",
+    re.I,
+)
+
+_PATH_LITERAL_RE = re.compile(
+    r"""[`"']([A-Za-z][A-Za-z0-9_.%-]*(?:/[A-Za-z0-9_.%-]+){2,})[`"']"""
+)
+
 _API_SIGNAL_RE = re.compile(
     r"/(?:api|v\d+|rest|graphql|rpc|oauth|token|auth|endpoints?|services?|query|mutation)(?:/|$)",
     re.I,
@@ -154,6 +163,36 @@ class Crawler:
             for m in _BASEURL_RE.finditer(js)
             if urlparse(m.group(1)).netloc != self.domain
         ]
+
+        # Collect variable-assigned base URLs: const X = "https://host/path/"
+        var_bases: dict[str, str] = {}
+        for m in _VAR_BASEURL_RE.finditer(js):
+            var_bases[m.group(1)] = m.group(2).rstrip("/")
+
+        # For each var base, find explicit concatenation literals: X + "path"
+        for var_name, base_url in var_bases.items():
+            concat_re = re.compile(
+                r"""%s\s*\+\s*[`"']([^`"'\s{}]+)[`"']""" % re.escape(var_name)
+            )
+            for cm in concat_re.finditer(js):
+                path = cm.group(1)
+                if path and "/" in path and not path.startswith(("http:", "https:")):
+                    joined = base_url + "/" + path.lstrip("/")
+                    self._register(Hit(url=joined), source)
+
+        # When the file contains variable-assigned base URLs, also scan for
+        # multi-segment path string literals that are likely route arguments
+        # passed to service wrapper methods (e.g. Angular HttpClient services).
+        if var_bases:
+            all_bases = list(var_bases.values())
+            for pm in _PATH_LITERAL_RE.finditer(js):
+                path = pm.group(1)
+                # Skip anything that looks like a file path or non-route string
+                if path.endswith((".js", ".css", ".html", ".png", ".jpg", ".svg")):
+                    continue
+                for base_url in all_bases:
+                    joined = base_url + "/" + path.lstrip("/")
+                    self._register(Hit(url=joined), source)
 
         for hit in extract_from_js(js):
             if is_template_only(hit.url):
