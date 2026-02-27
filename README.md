@@ -1,8 +1,7 @@
 # apipie
 
-Point it at a web app and let it do the work. apipie crawls pages, tears apart JavaScript, and surfaces every API endpoint it can find — REST, GraphQL, and RPC — without touching a single network socket beyond the target. Walk away with a structured Markdown or JSON report, curl examples included.
+Point it at a web app and let it do the work. apipie crawls pages, tears apart JavaScript, and surfaces every API endpoint it can find - REST, GraphQL, and RPC - without touching a single network socket beyond the target. Walk away with a structured Markdown or JSON report, curl examples included.
 
----
 
 ## How it works
 
@@ -14,7 +13,6 @@ apipie performs a BFS crawl of the target, fetches external JS files concurrentl
 
 Duplicate endpoints are merged. If a URL appears as both REST and GraphQL, it is promoted to GraphQL. Endpoints with no explicit method are assigned one via path-keyword inference.
 
----
 
 ## Requirements
 
@@ -22,7 +20,6 @@ Duplicate endpoints are merged. If a URL appears as both REST and GraphQL, it is
 - `requests`, `beautifulsoup4`
 - `lxml` (optional, significantly faster HTML parsing)
 
----
 
 ## Installation
 
@@ -32,7 +29,6 @@ cd apipie
 pip install -r requirements.txt
 ```
 
----
 
 ## Usage
 
@@ -55,7 +51,6 @@ python3 apipie.py --url <target> [options]
 | `--verbose` / `-v` | off | Log each crawled URL to stderr |
 | `--no-color` | off | Disable ANSI output |
 
----
 
 ## Examples
 
@@ -78,7 +73,6 @@ python3 apipie.py --url https://app.example.com --ua mobile
 python3 apipie.py --url https://app.example.com --rate-limit 0.5
 ```
 
----
 
 ## Output
 
@@ -90,7 +84,6 @@ GraphQL entries list the endpoint URL alongside all detected operations (query/m
 
 Pass `--format json` to get a flat JSON array instead, useful for piping into other tools.
 
----
 
 ## Project Structure
 
@@ -120,7 +113,6 @@ apipie/
     └── rpc.py
 ```
 
----
 
 ## Method Inference
 
@@ -133,7 +125,6 @@ When a source provides no explicit HTTP method, apipie falls back to path-keywor
 | `POST` | `create`, `add`, `submit`, `login`, `register`, `upload`, `save`, `generate`, `otp`, `verify`, `validate`, `authenticate`, `token`, `search`, `query`, `subscribe`, `checkout` |
 | `GET` | everything else |
 
----
 
 ## Extending
 
@@ -148,7 +139,6 @@ To add support for a new library (e.g. `ky`):
 1. Create `extractors/ky.py` implementing `extract(js: str) -> list[Hit]`.
 2. Add it to `_JS_EXTRACTORS` in `extractors/__init__.py`.
 
----
 
 ## License
 
