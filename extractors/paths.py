@@ -36,6 +36,12 @@ _NOISE_DOMAINS: frozenset[str] = frozenset({
 
 _NOISE_PATH_RE = re.compile(r"^https?://[^/]+/(?:static|assets|public|dist)/", re.I)
 
+_ABS_API_SIGNAL_RE = re.compile(
+    r"/(?:api|v\d+|rest|graphql|rpc|oauth|token|auth|endpoints?|services?|query|mutation)(?:/|$)"
+    r"|\.(json|xml|csv|proto)(?:[?#]|$)",
+    re.I,
+)
+
 
 def _is_noise(url: str) -> bool:
     try:
@@ -54,6 +60,8 @@ def extract(js: str) -> list[Hit]:
         if _is_noise(url):
             continue
         if _NOISE_PATH_RE.search(url):
+            continue
+        if not _ABS_API_SIGNAL_RE.search(url):
             continue
         hits.append(Hit(url=url))
     for m in _REL.finditer(js):

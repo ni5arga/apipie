@@ -129,6 +129,14 @@ class Crawler:
 
     def _process_html(self, soup: BeautifulSoup, page_url: str):
         for url, method in extract_forms(soup, page_url):
+            # Skip same-origin form actions that have no API signal in the path.
+            # Navigation forms (search pages, help pages, etc.) are not endpoints.
+            try:
+                p = urlparse(url)
+            except Exception:
+                continue
+            if same_origin(url, self.domain) and not _API_SIGNAL_RE.search(p.path):
+                continue
             self._register(Hit(url=url, method=method), page_url)
         for url in extract_data_urls(soup, page_url):
             try:
